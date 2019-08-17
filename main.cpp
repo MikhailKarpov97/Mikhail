@@ -1,87 +1,97 @@
 #include <iostream>
 #include <fstream>
-#include <vector>
-#include <math.h>
+#include <cstring>
 #include <cstdlib>
-#include <iomanip>
-
+#include <Windows.h>
+#include <vector>
+#include <cmath>
 using namespace std;
-vector<double> arr;
-void per90(int counter);
-void mediane(int counter);
-void minimum();
-void maximum(int counter);
-void middle(int counter);
+double epsilon=0.0001;
+double PI=3.14159256;
 
-int main(int argc, char* argv[])
+int main(int argc,char *argv[])
 {
-int counter=0;
-arr.reserve(1000);
-double buff;
-ifstream file;
-file.open(argv[1]);
-if (file.is_open())
+double points_4[4][2];
+double current_point[2];
+double current_vector[2];
+double next_vector[2];
+double bet_angle;
+double angle_sum;
+double vec_sum;
+double sqrt1;
+double sqrt2;
+int exit_counter=0;
+ifstream file1;
+file1.open(argv[1]);
+if(file1.is_open())
 {
-    while(!file.eof())
+    for(int i=0;i<4;i++)
     {
-    file>>buff;
-    arr[counter]=buff;
-    counter++;
+        file1>>points_4[i][0]>>points_4[i][1];
     }
-for(int i=0;i<counter;i++)
-    for(int k=i;k<counter;k++)
-        if (arr[k]<arr[i])
+}
+else
+    cout<<"file_1 not open"<<'\n';
+file1.close();
+ifstream file2;
+file2.open(argv[2]);
+if(file2.is_open())
+{
+    while(!file2.eof())
+    {
+        exit_counter=0;
+        file2>>current_point[0]>>current_point[1];
+        angle_sum=0;
+        for(int i=0;i<4;i++)
         {
-            double buf=arr[i];
-            arr[i]=arr[k];
-            arr[k]=buf;
+            current_vector[0]=current_point[0]-points_4[i][0];
+            current_vector[1]=current_point[1]-points_4[i][1];
+            if((current_vector[0]==0)&&(current_vector[1]==0))
+            {
+                cout<<"0"<<'\n';
+                exit_counter++;
+            }
+            else
+            {
+                if(i<3)
+                {
+                    next_vector[0]=current_point[0]-points_4[i+1][0];
+                    next_vector[1]=current_point[1]-points_4[i+1][1];
+                }
+                else
+                {
+                    next_vector[0]=current_point[0]-points_4[0][0];
+                    next_vector[1]=current_point[1]-points_4[0][1];
+                }
+
+                sqrt1=sqrt(current_vector[0]*current_vector[0]+current_vector[1]*current_vector[1]);
+                sqrt2=sqrt(next_vector[0]*next_vector[0]+next_vector[1]*next_vector[1]);
+                vec_sum=current_vector[0]*next_vector[0]+current_vector[1]*next_vector[1];
+
+                bet_angle=acos(vec_sum/(sqrt1*sqrt2));
+
+                if((PI-bet_angle)<=epsilon)
+                {
+                    cout<<"1"<<'\n';
+                    exit_counter++;
+                }
+                else
+                {
+                    angle_sum+=bet_angle;
+                }
+            }
         }
-per90(counter);
-mediane(counter);
-minimum();
-maximum(counter);
-middle(counter);
+        if(exit_counter==0)
+        {
+            if(((2*PI-angle_sum)<=epsilon))
+                cout<<"2"<<'\n';
+            else
+                cout<<"3"<<'\n';
+        }
+    }
 }
 else
-    cout<<"file is not open"<<'\n';
+    cout<<"file_2 not open"<<'\n';
+file2.close();
 return 0;
-}
-
-void per90(int counter)
-{
-double per;
-per=arr[(90*(counter-1)/100)];
-cout<<setprecision(2)<<fixed<<per<<'\n';
-}
-
-void mediane(int counter)
-{
-double me;
-int N=(counter+1)/2;
-if ((N%2)==0)
-    me=(arr[N]+arr[N+1])/2;
-else
-    me=arr[N];
-cout<<setprecision(2)<<fixed<<me<<'\n';
-}
-
-void minimum()
-{
-cout<<setprecision(2)<<fixed<<arr[0]<<'\n';
-}
-
-void maximum(int counter)
-{
-double a;
-a=arr[counter-1];
-cout<<setprecision(2)<<fixed<<a<<'\n';
-}
-
-void middle(int counter)
-{
-double sum=0;
-for(int i=0;i<counter;i++)
-        sum+=arr[i];
-sum=sum/(counter);
-cout<<setprecision(2)<<fixed<<sum<<'\n';
 }
